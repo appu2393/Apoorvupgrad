@@ -1,0 +1,101 @@
+import pandas as pd
+import numpy as np
+from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score, classification_report
+
+# Example Data Preparation for Retail Domain
+def retail_data_preparation():
+    # Load the retail dataset
+    retail_data = pd.read_csv('retail_data.csv')
+    
+    # Handle missing values
+    retail_data.fillna(retail_data.mean(), inplace=True)
+    
+    # Feature engineering: create a new feature 'total_spent'
+    retail_data['total_spent'] = retail_data['quantity'] * retail_data['price']
+    
+    return retail_data
+
+# Example Data Preparation for BFSI Domain
+def bfsi_data_preparation():
+    # Load the BFSI dataset
+    bfsi_data = pd.read_csv('bfsi_data.csv')
+    
+    # Handle missing values
+    bfsi_data.fillna(bfsi_data.median(), inplace=True)
+    
+    # Feature engineering: create a new feature 'risk_score'
+    bfsi_data['risk_score'] = (bfsi_data['credit_score'] + bfsi_data['income']) / 2
+    
+    return bfsi_data
+
+# Example Data Preparation for Telecom Domain
+def telecom_data_preparation():
+    # Load the telecom dataset
+    telecom_data = pd.read_csv('telecom_data.csv')
+    
+    # Handle missing values
+    telecom_data.fillna(telecom_data.mode().iloc[0], inplace=True)
+    
+    # Feature engineering: create a new feature 'data_usage_per_month'
+    telecom_data['data_usage_per_month'] = telecom_data['data_usage'] / telecom_data['months']
+    
+    return telecom_data
+
+# Example Machine Learning Model Training
+def train_model(data, target_column):
+    # Separate features and target variable
+    X = data.drop(target_column, axis=1)
+    y = data[target_column]
+    
+    # Standardize the features
+    scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(X)
+    
+    # Split data into training and testing sets
+    X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.3, random_state=42)
+    
+    # Initialize and train a Random Forest classifier
+    clf = RandomForestClassifier(n_estimators=100, random_state=42)
+    clf.fit(X_train, y_train)
+    
+    # Make predictions
+    y_pred = clf.predict(X_test)
+    
+    # Evaluate the model
+    accuracy = accuracy_score(y_test, y_pred)
+    report = classification_report(y_test, y_pred)
+    
+    return accuracy, report
+
+# Main function to run the example
+if __name__ == "__main__":
+    # Prepare the datasets
+    retail_data = retail_data_preparation()
+    bfsi_data = bfsi_data_preparation()
+    telecom_data = telecom_data_preparation()
+    
+    # Define the target columns
+    retail_target = 'purchase'
+    bfsi_target = 'default'
+    telecom_target = 'churn'
+    
+    # Train models for each domain
+    retail_accuracy, retail_report = train_model(retail_data, retail_target)
+    bfsi_accuracy, bfsi_report = train_model(bfsi_data, bfsi_target)
+    telecom_accuracy, telecom_report = train_model(telecom_data, telecom_target)
+    
+    # Print the results
+    print("Retail Domain:")
+    print(f"Accuracy: {retail_accuracy}")
+    print(f"Report: \n{retail_report}")
+    
+    print("\nBFSI Domain:")
+    print(f"Accuracy: {bfsi_accuracy}")
+    print(f"Report: \n{bfsi_report}")
+    
+    print("\nTelecom Domain:")
+    print(f"Accuracy: {telecom_accuracy}")
+    print(f"Report: \n{telecom_report}")
